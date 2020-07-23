@@ -30,6 +30,7 @@ tr = tr * nelec/np.sum(tr)
 print(np.sum(tr))
 
 b,a = sp.butter(3, 3e5/(Fs/2))
+tr = sp.filtfilt(b,a,tr)
 
 fitpts = [1100,1250]
 
@@ -53,8 +54,18 @@ pdf.savefig()
 
 fvec = np.linspace(0, Fs/2, int(nsamp/2)+1)
 camps = np.interp( fvec, dat[:,0], np.sqrt(dat[:,2]) )
-#plt.loglog(fvec, camps**2)
-#plt.show()
+
+plt.figure()
+plt.plot((tvec)*1e6-100, tr * 1e6/Fs)
+plt.xlabel("Time [us]")
+plt.ylabel("Current [$e/\mu$s]")
+plt.xlim(-20, 10)
+plt.title("Pulse template, before adding noise")
+pdf.savefig()
+
+# plt.figure()
+# plt.plot(tr)
+# plt.show()
 
 def get_aldo_noise(nlev):
 
@@ -105,7 +116,7 @@ for noise_val in noise_rms:
             tf += noise
 
             ##trapezoidal filter
-            outvec.append( np.sum(tf[1206:1226]) )
+            outvec.append( np.sum(tf[1215:1236]) )
 
             ## time domain fit
             bp, bcov = opt.curve_fit(ffn, xvec[fitpts[0]:fitpts[1]], tf[fitpts[0]:fitpts[1]], p0 = [125000,])
@@ -143,11 +154,11 @@ for noise_val in noise_rms:
         plt.plot(xx, gfit(xx, *bf2), color='r', alpha=0.5, label="Fit, $\sigma = %d\ e$"%np.abs(bf2[2]))
         plt.legend()
         if(nt == "aldo"):
-            plt.title("ASIC spec, RMS$=%d\ e$, charge noise (fit), $\sigma=%.2f$%%"%(noise_val, 100*np.abs(bf[2])/nquant))
+            plt.title("ASIC spec, RMS$=%d\ e$, charge noise (fit, 6 ch), $\sigma=%.2f$%%"%(noise_val, np.sqrt(6)*100*np.abs(bf[2])/nquant))
 
             aldo_vec.append([noise_val, np.abs(bf[2]), np.abs(bf2[2])])
         else:
-            plt.title("White spec, RMS$=%d\ e$, charge noise (fit), $\sigma=%.2f$%%"%(noise_val, 100*np.abs(bf[2])/nquant))
+            plt.title("White spec, RMS$=%d\ e$, charge noise (fit, 6 ch), $\sigma=%.2f$%%"%(noise_val, np.sqrt(6)*100*np.abs(bf[2])/nquant))
             white_vec.append([noise_val, np.abs(bf[2]), np.abs(bf2[2])])
             
         pdf.savefig()
