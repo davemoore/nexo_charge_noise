@@ -181,6 +181,15 @@ plt.title("Recon. noise vs charge noise RMS, white spectrum")
 plt.legend()
 pdf.savefig()
 
+plt.figure()
+plt.plot( aldo_vec[:,0], (aldo_vec[:,1]/aldo_vec[:,2]-1)*100, 'bo-', label="ASIC noise")
+plt.plot( white_vec[:,0], (white_vec[:,1]/white_vec[:,2]-1)*100, 'go-', label="White noise")
+plt.xlabel("Noise RMS [$e$]")
+plt.ylabel("Relative improvement (fit vs trap filt) [%]")
+plt.title("Noise improvement vs recon method")
+plt.legend()
+pdf.savefig()
+
 
 pdf.close()
 
